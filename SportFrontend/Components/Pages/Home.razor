@@ -1,0 +1,48 @@
+﻿@page "/"
+@using SharedDTO
+@inject HttpClient HttpClient
+
+<h3>Teams</h3> @*  kártyás megjelenítés *@
+<hr />
+
+<div class="main">
+    <ul class="teams-cards">
+        @if (teamsLista != null)
+        {
+            @foreach (var item in teamsLista)
+            {
+                <li style="background-image:url(@item.ImageUrl)">
+                    <div class="Teams-info">
+                        <span class="title">@item.TeamName</span>
+                        <span class="establish">@item.Establish</span>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+@code {
+    List<TeamDTO> teamsLista = new();
+
+    // protected override void OnInitialized()
+    // {
+    //     // teamsLista.AddRange(new List<TeamDTO>
+    //     // {
+    //     //     new TeamDTO {TeamName= "Lion", Establish= 1960,  ImageUrl = "img/1.jpg" },
+    //     //     new TeamDTO {TeamName= "Bulls", Establish = 1965,  ImageUrl = "img/2.jpg" },
+    //     //     new TeamDTO {TeamName= "XY", Establish = 2000, ImageUrl = "img/3.jpg" },
+
+           
+    //     // });
+
+
+    // }
+    protected override async Task OnInitializedAsync()
+    {
+
+        teamsLista = await HttpClient.GetFromJsonAsync<List<TeamDTO>>("Sport/Team");
+    }
+
+
+}

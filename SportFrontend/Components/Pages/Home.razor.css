@@ -1,0 +1,71 @@
+﻿.main {
+    flex-grow: 1;
+    background: linear-gradient( gray, white, yellow);
+}
+
+.teams-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 20rem);
+    grid-gap: 2rem;
+    justify-content: center;
+    padding: 5rem;
+}
+
+    .teams-cards > li {
+        list-style-type: none;
+        height: 10rem;
+        position: relative;
+        background-size: inherit;
+        border-radius: 15px;
+    }
+/*
+        .teams-cards > li:hover {
+            list-style-type: none;
+            height: 10rem;
+            position: relative;
+            background-size: cover;
+        }*/
+
+.Teams-info {
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+    padding: 5rem 1rem;
+}
+
+    .Teams-info .title {
+        font-size: 1.4rem;
+        display: block;
+    }
+
+    .Teams-info .establish {
+        right: 1rem;
+        bottom: 0.5rem;
+        padding: 0.1rem 0.7rem;
+    }
+
+
+h3 {
+    font-size: 50px;
+    font-family: 'Monotype Corsiva';
+    text-align: center; 
+}
+
+hr {
+    color: darkgreen;
+}
+@media only screen and (max-width: 600px) {
+    .teams-cards {
+        grid-template-columns: 1fr; /* Egy oszlop lesz */
+        padding: 1rem; 
+    }
+
+    .Teams-info {
+        text-align: center; /* Középre igazítva  */
+        padding: 2rem 1rem; 
+    }
+
+    h3 {
+        font-size: 30px; 
+    }

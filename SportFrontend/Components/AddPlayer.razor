@@ -1,0 +1,102 @@
+﻿@page "/playeradd"
+@using SharedDTO
+@inject HttpClient HttpClient
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+@inject IJSRuntime Js
+
+<h3> játékos felvétel</h3>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm Model="newPlayer" OnValidSubmit="AddnewPlayer" FormName="AddnewPlayer" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="mb-3">
+                <label for="fn" class="form-label">Név:</label>
+                <InputText id="fn" class="form-control" @bind-Value="newPlayer.FullName" />
+                <ValidationMessage class="text-danger" For="()=>newPlayer.FullName" />
+            </div>
+            <div class="mb-3">
+                <label for="ln" class="form-label">Pozíció:</label>
+                <InputText id="ln" class="form-control" @bind-Value="newPlayer.Position" />
+                <ValidationMessage class="text-danger" For="()=>newPlayer.Position" />
+            </div>
+            <div class="mb-3">
+                <label for="bd" class="form-label">Születésnap:</label>
+                <InputDate id="bd" class="form-control" @bind-Value="newPlayer.DateofBirth"/>
+                <ValidationMessage class="text-danger" For="()=>newPlayer.DateofBirth" />
+            </div>
+            <div class="mb-3">
+                <label for="teamSelect" class="form-label">Csapat:</label>
+                <InputSelect id="teamSelect" class="form-control" @bind-Value="newPlayer.TeamId">
+                    <option>Válassz egy csapatot</option>
+                    @foreach (var item in teamList)
+                    {
+                        <option value="@item.TeamId">@item.TeamName</option>
+                    }
+                </InputSelect>
+            </div>
+            <button type="submit" class="btn btn-primary mb-4">Mentés</button>
+            <a href="/playerindex" class="btn btn-success mb-4">vissza</a>
+        </EditForm>
+    </div>
+</div>
+
+
+
+
+@code {
+    [SupplyParameterFromForm]
+    public PlayerDTO newPlayer { get; set; } = new();
+
+    private List<TeamDTO> teamList = new();
+
+    private string errorMessage = string.Empty;
+    private bool isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTeamAsync("Sport/Team");
+    }
+
+    private async Task LoadTeamAsync(string url)
+    {
+        errorMessage = string.Empty;
+        
+        if (isLoading)
+            return;
+
+        isLoading = true; 
+
+        try
+        {
+            teamList = await HttpClient.GetFromJsonAsync<List<TeamDTO>>(url);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Az adat nem tölthető be! {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false; 
+        }
+    }
+
+    public async Task AddnewPlayer()
+    {
+        var response = await HttpClient.PostAsJsonAsync("Sport/AddPlayer", newPlayer);
+        if (response.IsSuccessStatusCode)
+        {
+            errorMessage = "A Játékos sikeresen hozzáadva";
+            Js.InvokeVoidAsync("alert", errorMessage);
+            NavManager.NavigateTo("/playerindex");
+        }
+        else
+        {
+            
+            var errorResponse = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Error: {response.StatusCode}, Message: {errorResponse}");
+        }
+    }
+}

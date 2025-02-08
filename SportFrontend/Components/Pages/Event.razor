@@ -1,0 +1,50 @@
+﻿@page "/eventindex"
+
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using SharedDTO
+@inject HttpClient HttpClient
+
+<h3>Események</h3>
+
+@if(eventGrid is null)
+{
+    <p>Loading....</p>
+}
+else
+{
+    <div class="quickgrid">
+    <QuickGrid class="table" ItemsProvider="@eventGrid">
+        <PropertyColumn Title="Esemény Neve" Property="@(p=>p.EventName)"/>
+        <PropertyColumn Title="Esemény Dátuma" Property="@(p=>p.EventDate)" />
+            <TemplateColumn Title="Csapat" Context="Teams">
+                @foreach (var item in Teams.Teams)
+                {
+                    <spam>@item</spam>
+                    @if (item !=Teams.Teams.Last())
+                    {
+                        <spam>,</spam>
+                    }             
+                }
+          </TemplateColumn>
+    </QuickGrid>
+    </div>
+}
+
+@code {
+    List<EventDTO> eventList = new();
+    GridItemsProvider<EventDTO>? eventGrid;
+    protected override async Task OnInitializedAsync()
+    {
+
+        eventList = await HttpClient.GetFromJsonAsync<List<EventDTO>>("Sport/Event");
+
+
+        eventGrid = async request =>
+        {
+            return GridItemsProviderResult.From(eventList, eventList.Count);
+        };
+    }
+
+}
+
+

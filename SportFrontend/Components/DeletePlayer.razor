@@ -1,0 +1,81 @@
+﻿@page "/deleteplayer"
+
+@using SharedDTO
+@inject HttpClient HttpClient
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+@inject IJSRuntime Js
+
+
+<h3>Játékos Törlése</h3>
+
+@if (deletePlayer is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <dl class="row">
+        <dt class="col-sm-2">Név:</dt>
+        <dt class="col-sm-10">@deletePlayer.FullName</dt>
+    </dl>
+
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm Model="deletePlayer" OnValidSubmit="Deleteplayer" FormName="deletePlayer" Enhance>
+                <button type="submit" class="btn btn-danger md-4">Törlés</button>
+                <a href="/playerindex" class="btn btn-success">Vissza</a>
+
+            </EditForm>
+
+        </div>
+    </div>
+}
+
+
+@code {
+    private PlayerDTO deletePlayer;
+
+    [SupplyParameterFromQuery]
+    private int PlayerId { get; set; }
+
+    private string errormessage = "";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var PlayerList = await HttpClient.GetFromJsonAsync<List<PlayerDTO>>("Sport/Player");
+        if (PlayerList is not null)
+        {
+            deletePlayer = PlayerList.FirstOrDefault(u => u.PlayerId == PlayerId);
+        }
+        else
+        {
+            NavManager.NavigateTo("/error");
+        }
+
+    }
+
+    public async Task Deleteplayer()
+    {
+        try
+        {
+            var response = await HttpClient.DeleteAsync($"Sport/DeletePlayer/{PlayerId}");
+            if (response.IsSuccessStatusCode)
+            {
+                errormessage = "Biztosan törli?";           //javascrip message
+                Js.InvokeVoidAsync("alert", errormessage); //javascrip message
+                NavManager.NavigateTo("/playerindex");
+
+            }
+            else
+            {
+                NavManager.NavigateTo("/error");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            errormessage = $"Hiba történt: {ex.Message}";
+        }
+    }
+}
